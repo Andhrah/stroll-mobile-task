@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:stroll/routers/main_routes.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/main',
+  initialLocation: '/tabs',
   routes: <RouteBase>[
     ...mainRoutes,
   ],
