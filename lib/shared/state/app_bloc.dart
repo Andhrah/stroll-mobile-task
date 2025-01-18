@@ -1,0 +1,1 @@
+// Global BLoC for handling app-wide state changes
