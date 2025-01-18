@@ -41,7 +41,7 @@ class QuestionCard extends StatelessWidget {
           children: <Widget>[
             Container(
               padding: const EdgeInsets.all(2.0),
-              margin: EdgeInsets.fromLTRB(0, 0, 8.0, 0),
+              margin: EdgeInsets.fromLTRB(0, 0, 5.0, 0),
               width: 25.0,
               height: 25.0,
               decoration: BoxDecoration(
