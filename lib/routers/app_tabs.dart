@@ -13,11 +13,11 @@ class AppTabs extends StatefulWidget {
 }
 
 class _AppTabsState extends State<AppTabs> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
 
   final List<Widget> _screens = [
-    BonfireScreen(),
     MatchScreen(),
+    BonfireScreen(),
     ChatScreen(),
     ProfileScreen(),
   ];
