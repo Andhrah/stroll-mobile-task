@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:stroll/features/bonfire/ui/screens/bonfire_screen.dart';
+import 'package:stroll/features/chat/ui/screens/chat_screen.dart';
+import 'package:stroll/features/match/ui/screens/match_screen.dart';
+import 'package:stroll/features/profile/ui/screens/profile_screen.dart';
 
 class AppTabs extends StatefulWidget {
   const AppTabs({super.key});
@@ -13,7 +16,10 @@ class _AppTabsState extends State<AppTabs> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
+    MatchScreen(),
     BonfireScreen(),
+    ChatScreen(),
+    ProfileScreen(),
   ];
 
   void _onTabSelected(int index) {
