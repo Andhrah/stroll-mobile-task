@@ -10,7 +10,13 @@ class MatchScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Hi 👋🏽 this is match screen'),
+            Text(
+              'Hi 👋🏽 this is match screen',
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold
+              ),
+            ),
           ],
         )
       ),

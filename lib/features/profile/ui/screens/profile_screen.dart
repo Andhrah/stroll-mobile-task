@@ -10,7 +10,13 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Hi 👋🏽 this is profile screen'),
+            Text(
+              'Hi 👋🏽 this is profile screen',
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold
+              ),
+            ),
           ],
         )
       ),
