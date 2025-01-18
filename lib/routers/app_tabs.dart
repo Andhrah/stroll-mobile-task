@@ -16,8 +16,8 @@ class _AppTabsState extends State<AppTabs> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    MatchScreen(),
     BonfireScreen(),
+    MatchScreen(),
     ChatScreen(),
     ProfileScreen(),
   ];
