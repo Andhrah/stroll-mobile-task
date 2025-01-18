@@ -122,7 +122,8 @@ class BonfireScreen extends StatelessWidget {
                                     ),
                                   ),
                                   Padding(
-                                    padding: EdgeInsets.only(left: 15.0, bottom: 8.0, right: 28.0),
+                                    padding: EdgeInsets.only(
+                                        left: 15.0, bottom: 8.0, right: 28.0),
                                     child: const Text(
                                       'What is your favorite time of the day?',
                                       style: TextStyle(
@@ -152,64 +153,70 @@ class BonfireScreen extends StatelessWidget {
                       const SizedBox(height: 8.0),
                       Row(
                         children: <Widget>[
-                          QuestionCard(
-                            option: 'A',
-                            questionText: 'The peace in the early mornings',
-                            onSelectionChanged: (isSelected) {
-                              if (isSelected) {
-                                context
-                                  .read<BonfireBloc>()
-                                  .add(const OptionSelected('A'));
-                              }
-                            },
-                            isSelected: _selectedOption == 'A',
+                          Expanded(
+                            child: QuestionCard(
+                              option: 'A',
+                              questionText: 'The peace in the early mornings',
+                              onSelectionChanged: (isSelected) {
+                                if (isSelected) {
+                                  context
+                                      .read<BonfireBloc>()
+                                      .add(const OptionSelected('A'));
+                                }
+                              },
+                              isSelected: _selectedOption == 'A',
+                            ),
                           ),
-
-                          QuestionCard(
-                            option: 'B',
-                            questionText: 'The magical golden hours',
-                            onSelectionChanged: (isSelected) {
-                              if (isSelected) {
-                                context
-                                  .read<BonfireBloc>()
-                                  .add(const OptionSelected('B'));
-                              }
-                            },
-                            isSelected: _selectedOption == 'B',
+                          Expanded(
+                            child: QuestionCard(
+                              option: 'B',
+                              questionText: 'The magical golden hours',
+                              onSelectionChanged: (isSelected) {
+                                if (isSelected) {
+                                  context
+                                      .read<BonfireBloc>()
+                                      .add(const OptionSelected('B'));
+                                }
+                              },
+                              isSelected: _selectedOption == 'B',
+                            ),
                           ),
                         ],
                       ),
                       Row(
                         children: <Widget>[
-                          QuestionCard(
-                            option: 'C',
-                            questionText: 'Wind-down time after dinners',
-                            onSelectionChanged: (isSelected) {
-                              if (isSelected) {
-                                context
-                                  .read<BonfireBloc>()
-                                  .add(const OptionSelected('C'));
-                              }
-                            },
-                            isSelected: _selectedOption == 'C',
+                          Expanded(
+                            child: QuestionCard(
+                              option: 'C',
+                              questionText: 'Wind-down time after dinners',
+                              onSelectionChanged: (isSelected) {
+                                if (isSelected) {
+                                  context
+                                      .read<BonfireBloc>()
+                                      .add(const OptionSelected('C'));
+                                }
+                              },
+                              isSelected: _selectedOption == 'C',
+                            ),
                           ),
-                          QuestionCard(
-                            option: 'D',
-                            questionText: "The serenity past midnight",
-                            onSelectionChanged: (isSelected) {
-                              if (isSelected) {
-                                context
-                                  .read<BonfireBloc>()
-                                  .add(const OptionSelected('D'));
-                              }
-                            },
-                            isSelected: _selectedOption == 'D',
+                          Expanded(
+                            child: QuestionCard(
+                              option: 'D',
+                              questionText: "The serenity past midnight",
+                              onSelectionChanged: (isSelected) {
+                                if (isSelected) {
+                                  context
+                                      .read<BonfireBloc>()
+                                      .add(const OptionSelected('D'));
+                                }
+                              },
+                              isSelected: _selectedOption == 'D',
+                            ),
                           ),
                         ],
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                         child: Row(
                           children: <Widget>[
                             Text(
