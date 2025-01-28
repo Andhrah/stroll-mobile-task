@@ -7,6 +7,8 @@ class Wave extends StatelessWidget {
   final double barSpacing;
   final double maxHeight;
   final Color color;
+  final Color? activeColor;
+  final Color? inactiveColor;
 
   const Wave({
     super.key,
@@ -16,6 +18,8 @@ class Wave extends StatelessWidget {
     this.barSpacing = 2.0,
     this.maxHeight = 100.0,
     this.color = const Color(0xFF36393E),
+    this.activeColor,
+    this.inactiveColor,
   });
 
   @override
