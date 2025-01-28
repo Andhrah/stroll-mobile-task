@@ -5,6 +5,7 @@ import 'package:stroll/features/bonfire/states/bonfire_bloc.dart';
 import 'package:stroll/features/bonfire/states/bonfire_event.dart';
 import 'package:stroll/features/bonfire/states/bonfire_state.dart';
 import 'package:stroll/features/bonfire/ui/widgets/question_card.dart';
+import 'package:stroll/features/chat/ui/screens/chat_recording_screen.dart';
 import 'package:stroll/shared/widgets/custom_icon_btn.dart';
 
 class BonfireScreen extends StatelessWidget {
@@ -234,6 +235,10 @@ class BonfireScreen extends StatelessWidget {
                               borderWidth: 2.2,
                               onPressed: () {
                                 // Action when the button is pressed
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => const ChatRecordingScreen(),
+                                  ),
+                                );
                               },
                               child: SvgPicture.asset(
                                 'assets/icons/mic.svg',
