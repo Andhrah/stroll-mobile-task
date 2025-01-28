@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:record/record.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stroll/shared/widgets/app_text_btn.dart';
-import 'package:stroll/shared/widgets/wave.dart';
+import 'package:stroll/shared/widgets/wave_form.dart';
 
 import '../../platform/audio_recorder_platform.dart';
 
@@ -25,10 +26,10 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
   StreamSubscription<RecordState>? _recordSub;
   RecordState _recordState = RecordState.stop;
   StreamSubscription<Amplitude>? _amplitudeSub;
-  Amplitude? _amplitude;
   final List<double> _amplitudeValues = [];
   final double maxDbfs = 1.0; // loudest volume
   final double minDbfs = -40; // quietest volume
+  final List<double> _savedAmplitudeData = []; // Holds the saved amplitude data
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         .onAmplitudeChanged(const Duration(milliseconds: 300))
         .listen((amp) {
       double normalizedHeight =
-          (amp.current - minDbfs) / (maxDbfs - minDbfs) * 40;
+          (amp.current - minDbfs) / (maxDbfs - minDbfs) * 40; // Normalize
       if (normalizedHeight < 0) {
         normalizedHeight = normalizedHeight * -1;
       }
@@ -50,9 +51,10 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         normalizedHeight = 2;
       }
       setState(() {
-        _amplitudeValues.add(normalizedHeight); // Normalize
+        _amplitudeValues.add(normalizedHeight);
+        _savedAmplitudeData.add(normalizedHeight);
         if (_amplitudeValues.length > 70) {
-          _amplitudeValues.removeAt(0); // Keep only the latest 100 values
+          _amplitudeValues.removeAt(0); // Keep only the latest 70 values
         }
       });
     });
@@ -69,9 +71,6 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
           return;
         }
 
-        final devs = await _audioRecorder.listInputDevices();
-        debugPrint(devs.toString());
-
         const config = RecordConfig(encoder: encoder, numChannels: 1);
 
         // Record to file
@@ -79,14 +78,13 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
 
         _recordDuration = 0;
 
-        _amplitudeValues
-            .clear(); // Clear amplitude values when starting a new recording
+        _amplitudeValues.clear(); // Clear amplitude values when starting a new recording
 
         _startTimer();
       }
-    } catch (e) {
+    } catch (err) {
       if (kDebugMode) {
-        print(e);
+        debugPrint('This error is coming from recorder widget $err');
       }
     }
   }
@@ -99,6 +97,28 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
 
       downloadWebData(path);
     }
+
+    // Save all amplitude data to SharedPreferences
+    await _saveAllAmplitudeData();
+  }
+
+  /// Save all amplitudes to SharedPreferences
+  Future<void> _saveAllAmplitudeData() async {
+    // Obtain shared preferences.
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Check if the key exists and remove the old data if it does
+    final List<String>? data = prefs.getStringList('_savedAmplitudeData');
+
+    if (data == null) {
+      await prefs.remove('_savedAmplitudeData');
+    }
+
+    // Convert List<double> to List<String> for storage
+    List<String> stringValues = _savedAmplitudeData.map((e) => e.toString()).toList();
+
+    // Save the new data
+    await prefs.setStringList('_savedAmplitudeData', stringValues);
   }
 
   Future<void> _pause() => _audioRecorder.pause();
@@ -122,92 +142,62 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
     }
   }
 
+
   Future<bool> _isEncoderSupported(AudioEncoder encoder) async {
-    final isSupported = await _audioRecorder.isEncoderSupported(
-      encoder,
-    );
+    final isSupported = await _audioRecorder.isEncoderSupported(encoder);
 
     if (!isSupported) {
-      debugPrint('${encoder.name} is not supported on this platform.');
-      debugPrint('Supported encoders are:');
+      // Only print in debug mode
+      if (kDebugMode) {
+        debugPrint('${encoder.name} is not supported on this platform.');
+        debugPrint('Supported encoders are:');
 
-      for (final e in AudioEncoder.values) {
-        if (await _audioRecorder.isEncoderSupported(e)) {
-          debugPrint('- ${e.name}');
+        for (final e in AudioEncoder.values) {
+          if (await _audioRecorder.isEncoderSupported(e)) {
+            debugPrint('- ${e.name}');
+          }
         }
       }
     }
-
     return isSupported;
   }
 
+
   @override
   Widget build(BuildContext context) {
-     final screenWidth = MediaQuery.of(context).size.width * 1;
     return Column(
-      // mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             _buildText(),
-            SizedBox(height: 20.0),
-
-            // replace this condition with a waveform widget
-            if (_amplitude != null) ...[
-              // const SizedBox(height: 20),
-
-              Text(
-                'Current: ${_amplitude?.current ?? 0.0}',
-                style: TextStyle(color: Colors.amber, fontSize: 18),
-              ),
-              Text(
-                'Max: ${_amplitude?.max ?? 0.0}',
-                style: TextStyle(
-                    color: const Color.fromARGB(255, 158, 120, 7),
-                    fontSize: 18),
-              ),
-
-              SizedBox(height: 30.0),
-            ],
-
+            SizedBox(height: 30.0),
             Wave(
-              amplitudes: _amplitudeValues.isEmpty
-                  ? [2.0]
-                  : _amplitudeValues, // Use 2.0 if empty
-              isRecording: _recordState ==
-                  RecordState.record, // Pass the recording state
-              barWidth: 2.5,
+              amplitudes: _amplitudeValues, // Use 2.0 if empty
+              isRecording: _recordState == RecordState.record, // Pass the recording state
+              barWidth: 2.0,
               barSpacing: 2.0,
-              // maxHeight: 50.0,
               color: Color(0xFF36393E),
             ),
-
             const SizedBox(height: 30),
-
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal:  80),
+              padding: const EdgeInsets.symmetric(horizontal: 80),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   AppTextBtn(
                     text: 'Delete',
                     onPress: () => {},
-                    color: Color.fromRGBO(255, 255, 255, 0.3),
+                    color: Color.fromRGBO(255, 255, 255, 0.2),
                   ),
+
                   _buildRecordStopControl(),
-                  // const SizedBox(width: 20),
-                  // _buildPauseResumeControl(),
-                  // const SizedBox(width: 20),
 
                   AppTextBtn(
                     text: 'Submit',
                     onPress: () => {},
                     color: Color.fromRGBO(255, 255, 255, 0.3),
-                    // color: _recordState == RecordState.stop 
-                    // ? Color.fromRGBO(255, 255, 255, 0.2) 
-                    // : Colors.white, // Opacity for stop, full color otherwise
                   ),
                 ],
               ),
@@ -224,6 +214,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
     _recordSub?.cancel();
     _amplitudeSub?.cancel();
     _audioRecorder.dispose();
+    // _ampTimer?.cancel();
     super.dispose();
   }
 
@@ -246,7 +237,7 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         width: 64.0,
         height: 64.0,
       );
-      color = theme.primaryColor.withOpacity(0.1);
+      color = color = Colors.transparent;
     }
 
     return ClipOval(
@@ -272,16 +263,19 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
 
     if (_recordState == RecordState.record) {
       const SizedBox(width: 20);
-      // icon = const Icon(Icons.pause, color: Colors.red, size: 30);
-      icon =
-          SvgPicture.asset('assets/icons/pause.svg', width: 64.0, height: 64.0);
-      color = Colors.red.withOpacity(0.1);
+      icon = SvgPicture.asset(
+        'assets/icons/pause.svg',
+        width: 64.0,
+        height: 64.0,
+      );
+      color = Colors.transparent;
     } else {
-      final theme = Theme.of(context);
-      // icon = const Icon(Icons.play_arrow, color: Colors.red, size: 30);
-      icon =
-          SvgPicture.asset('assets/icons/play.svg', width: 64.0, height: 64.0);
-      color = theme.primaryColor.withOpacity(0.1);
+      icon = SvgPicture.asset(
+        'assets/icons/play.svg',
+        width: 64.0,
+        height: 64.0,
+      );
+      color = Colors.transparent;
     }
 
     return ClipOval(
